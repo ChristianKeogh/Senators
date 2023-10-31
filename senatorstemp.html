@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>HTML5 Template</title>
+  <!-- stylesheet to be created, below source -->
+  <link rel="stylesheet"   type="text/css" href="styles2.css">
+  </link>
+</head>
+
+<body>
+
+  <h2>United States Congress</h2>
+  <div id="countDisplay"></div>
+  <h2>Republican Leadership Roles</h2>
+  <div id="RepublicanTitles"></div>
+<h2>Democrat Leadership Roles</h2>
+  <div id="DemocratTitles"></div>
+  <table>
+    <tbody id="senatorsData2">
+    </tbody>
+  </table>
+
+  <script>
+    fetch('senators.json')
+      .then(response => response.json())
+      .then(data => {
+        //part1 Republican and Democrat count:
+        let republicanCount = 0;
+        let democratCount = 0;
+
+        data.objects.forEach(senator => {
+          if (senator.party === 'Republican') {
+            republicanCount++;
+          } else if (senator.party === 'Democrat') {
+            democratCount++;
+          }
+        });
+        let countDisplay = document.getElementById('countDisplay');
+        countDisplay.innerHTML = `Republican Count: ${republicanCount}, Democrat Count: ${democratCount}`;
+
+        //<!-- List of Senators with Leadership roles -->
+        let RepublicanTitles = document.getElementById('RepublicanTitles');
+        data.objects.forEach(senator => {
+            if (senator.leadership_title !== null && senator.party == 'Republican') {
+                let leadershipInfo = document.createElement('p');
+                leadershipInfo.textContent = ` ${senator.leadership_title}: ${senator.person.firstname} ${senator.person.lastname} (${senator.party})`;
+                RepublicanTitles.appendChild(leadershipInfo);
+            }
+        });
+        let DemocratTitles = document.getElementById('DemocratTitles');
+        data.objects.forEach(senator => {
+            if (senator.leadership_title !== null && senator.party == 'Democrat') {
+                let leadershipInfo = document.createElement('p');
+                leadershipInfo.textContent = ` ${senator.leadership_title}: ${senator.person.firstname} ${senator.person.lastname} (${senator.party})`;
+                DemocratTitles.appendChild(leadershipInfo);
+            }
+        });
+
+
+        //part2
+        // function to add cell to row 
+        let AddData = function (Row, CellData, isHeader) {
+          let SenatorData = null;
+          if (isHeader) {
+            SenatorData = document.createElement('th');
+          } else {
+            SenatorData = document.createElement('td');
+          }
+          SenatorData.textContent = CellData;
+          Row.appendChild(SenatorData);
+        }
+
+        let senatorsData2 = document.getElementById('senatorsData2');
+
+        //add header row
+        let HeaderRow = document.createElement('tr');
+        AddData(HeaderRow, 'Name', true);
+        AddData(HeaderRow, 'Party', true);
+        AddData(HeaderRow, 'State', true);
+        AddData(HeaderRow, 'Gender', true);
+        AddData(HeaderRow, 'Rank', true);
+
+        senatorsData2.appendChild(HeaderRow);
+
+        //Loop... for each senator, create a row and then add following cells
+        data.objects.forEach(function (senator) {
+          let SenatorsRow = document.createElement('tr');
+
+          AddData(SenatorsRow, senator.person.firstname + ' ' + senator.person.lastname);
+          AddData(SenatorsRow, senator.party);
+          AddData(SenatorsRow, senator.state);
+          AddData(SenatorsRow, senator.person.gender);
+          AddData(SenatorsRow, senator.senator_rank);
+
+          senatorsData2.appendChild(SenatorsRow);
+
+        });
+        //part 3
+        //Create another function to create a sorted table (3 different functions-sort by party, state, etc)
+        // step 1. empty table 
+        // step 2. sort data.objects
+        // step 3. add data to emptied table
+
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  </script>
+
+
+
+</body>
+
+</html>
